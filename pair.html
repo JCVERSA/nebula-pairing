@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nebula Bot — Pair Code</title>
+  <title>Nebula Bot — WhatsApp Linker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -11,6 +11,7 @@
 
     :root {
       --bg:      #04030a;
+      --surface: #0d0b1a;
       --card:    #110f22;
       --border:  rgba(139, 92, 246, 0.25);
       --border-h:rgba(139, 92, 246, 0.7);
@@ -21,6 +22,8 @@
       --muted:   #6b6a85;
       --success: #34d399;
       --error:   #f87171;
+      --glow-p:  rgba(139, 92, 246, 0.4);
+      --glow-c:  rgba(34, 211, 238, 0.3);
     }
 
     html, body {
@@ -31,7 +34,7 @@
       overflow-x: hidden;
     }
 
-    /* Stars */
+    /* ── Stars background ── */
     body::before {
       content: '';
       position: fixed; inset: 0;
@@ -44,13 +47,15 @@
         radial-gradient(1px 1px at 85% 70%, rgba(255,255,255,0.5) 0%, transparent 100%),
         radial-gradient(1px 1px at 5%  80%, rgba(255,255,255,0.7) 0%, transparent 100%),
         radial-gradient(1px 1px at 92% 35%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,0.8) 0%, transparent 100%),
         radial-gradient(1.5px 1.5px at 48% 30%, rgba(139,92,246,0.9) 0%, transparent 100%),
         radial-gradient(1.5px 1.5px at 78% 55%, rgba(34,211,238,0.8) 0%, transparent 100%),
         radial-gradient(1.5px 1.5px at 18% 65%, rgba(244,114,182,0.7) 0%, transparent 100%);
       pointer-events: none; z-index: 0;
     }
 
-    /* Nebula glow */
+    /* ── Nebula glow orbs ── */
     body::after {
       content: '';
       position: fixed; inset: 0;
@@ -61,6 +66,7 @@
       pointer-events: none; z-index: 0;
     }
 
+    /* ── Layout ── */
     .page {
       position: relative; z-index: 1;
       min-height: 100vh;
@@ -69,6 +75,7 @@
       padding: 2rem 1rem;
     }
 
+    /* ── Card ── */
     .card {
       width: 100%; max-width: 440px;
       background: var(--card);
@@ -76,6 +83,7 @@
       border-radius: 20px;
       padding: 2.5rem 2rem;
       box-shadow:
+        0 0 0 1px rgba(139,92,246,0.08),
         0 0 40px rgba(139,92,246,0.12),
         0 0 80px rgba(139,92,246,0.06),
         inset 0 1px 0 rgba(255,255,255,0.05);
@@ -83,33 +91,55 @@
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
+      from { opacity: 0; transform: translateY(30px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Logo */
+    /* ── Logo ── */
     .logo-wrap {
       display: flex; flex-direction: column;
       align-items: center; gap: 1rem;
       margin-bottom: 2rem;
     }
 
-    .logo-ring {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      border: 2px solid var(--purple);
-      display: flex; align-items: center; justify-content: center;
+    .logo-orbit {
       position: relative;
+      width: 80px; height: 80px;
+    }
+
+    .logo-core {
+      position: absolute; inset: 12px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px var(--glow-p), 0 0 40px var(--glow-c);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px var(--glow-p), 0 0 40px var(--glow-c); }
+      50%       { box-shadow: 0 0 35px var(--glow-p), 0 0 60px var(--glow-c); }
+    }
+
+    .logo-ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      background:
+        linear-gradient(var(--card), var(--card)) padding-box,
+        linear-gradient(135deg, var(--purple), var(--cyan)) border-box;
       animation: spin 8s linear infinite;
-      box-shadow: 0 0 20px rgba(139,92,246,0.4);
     }
 
     .logo-ring::before {
       content: '';
-      position: absolute; inset: -4px;
+      position: absolute;
+      top: -3px; left: 50%;
+      width: 6px; height: 6px;
+      background: var(--cyan);
       border-radius: 50%;
-      border: 1px solid rgba(34,211,238,0.3);
-      animation: spin 4s linear infinite reverse;
+      box-shadow: 0 0 8px var(--cyan);
+      transform: translateX(-50%);
     }
 
     @keyframes spin {
@@ -117,116 +147,123 @@
       to   { transform: rotate(360deg); }
     }
 
-    .logo-core {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(139,92,246,0.8), rgba(34,211,238,0.4));
-      animation: pulse 2s ease-in-out infinite;
-      box-shadow: 0 0 16px rgba(139,92,246,0.6);
-      font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50%       { transform: scale(1.1); opacity: 0.8; }
-    }
+    .logo-core svg { width: 22px; height: 22px; color: white; }
 
     .logo-title {
-      font-family: 'Orbitron', monospace;
-      font-size: 1.5rem; font-weight: 700;
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem; font-weight: 900;
+      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, #e2e0f0 30%, var(--purple), var(--cyan));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .logo-sub {
       font-size: 0.8rem; color: var(--muted);
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em; text-transform: uppercase;
     }
 
-    /* Social buttons */
+    /* ── Social icons ── */
     .socials {
-      display: flex; gap: 0.75rem;
-      justify-content: center;
-      margin-bottom: 1.75rem;
+      display: flex; justify-content: center;
+      gap: 0.75rem; margin-bottom: 1.75rem;
     }
 
     .social-btn {
-      width: 38px; height: 38px;
+      width: 40px; height: 40px;
       border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
       display: flex; align-items: center; justify-content: center;
-      text-decoration: none; font-size: 1rem;
-      border: 1px solid var(--border);
-      background: rgba(139,92,246,0.08);
-      transition: all 0.25s;
+      text-decoration: none; color: var(--muted);
+      transition: all 0.2s; font-size: 0.9rem;
     }
 
-    .social-btn:hover {
-      border-color: var(--border-h);
-      background: rgba(139,92,246,0.2);
-      transform: translateY(-2px);
-      box-shadow: 0 0 12px rgba(139,92,246,0.3);
-    }
+    .social-btn:hover { border-color: var(--purple); color: var(--purple); box-shadow: 0 0 12px var(--glow-p); transform: translateY(-2px); }
+    .social-btn.yt:hover { border-color: #ef4444; color: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.4); }
+    .social-btn.tg:hover { border-color: #38bdf8; color: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,0.4); }
+    .social-btn.wa:hover { border-color: #22c55e; color: #22c55e; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
+    .social-btn.gh:hover { border-color: var(--text); color: var(--text); box-shadow: 0 0 12px rgba(255,255,255,0.2); }
 
-    /* Input */
-    .input-wrap {
-      position: relative; margin-bottom: 1rem;
-    }
-
-    .input-wrap label {
+    /* ── Input ── */
+    .field-label {
       display: block;
-      font-size: 0.75rem; font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.5rem;
     }
 
-    .input-wrap input {
+    .input {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 12px;
       padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem; letter-spacing: 0.05em;
+      outline: none; transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .input::placeholder { color: var(--muted); font-family: 'Syne', sans-serif; letter-spacing: 0; }
+    .input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.15), 0 0 20px rgba(139,92,246,0.1);
+    }
+
+    /* ── Generate button ── */
+    .btn-primary {
+      width: 100%; padding: 0.9rem;
+      border: none; border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: all 0.25s;
+      box-shadow: 0 0 20px var(--glow-p);
+      position: relative; overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled)::before { opacity: 1; }
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 0 30px var(--glow-p), 0 0 60px rgba(139,92,246,0.2);
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Copy button ── */
+    .btn-copy {
+      width: 100%; padding: 0.75rem;
+      margin-top: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
       color: var(--text);
       font-family: 'Syne', sans-serif;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .input-wrap input:focus {
-      border-color: var(--purple);
-      box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
-    }
-
-    .input-wrap input::placeholder { color: var(--muted); }
-
-    /* Button */
-    .btn {
-      width: 100%;
-      padding: 0.9rem;
-      border: none; border-radius: 12px;
-      background: linear-gradient(135deg, var(--purple), #7c3aed);
-      color: #fff;
-      font-family: 'Orbitron', monospace;
       font-size: 0.85rem; font-weight: 600;
-      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 4px 20px rgba(139,92,246,0.35);
       display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: all 0.2s;
     }
 
-    .btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(139,92,246,0.5);
+    .btn-copy:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 12px var(--glow-c);
     }
 
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    /* Spinner */
+    /* ── Spinner ── */
     .spinner {
       width: 16px; height: 16px;
       border: 2px solid rgba(255,255,255,0.3);
@@ -235,49 +272,38 @@
       animation: spin 0.7s linear infinite;
     }
 
-    /* Code display */
+    /* ── Code box ── */
     .code-box {
-      margin-top: 1.25rem;
-      background: rgba(139,92,246,0.08);
-      border: 1px solid rgba(139,92,246,0.3);
-      border-radius: 14px;
+      margin-top: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border-h);
+      border-radius: 12px;
       padding: 1.25rem;
       text-align: center;
       display: none;
+      box-shadow: 0 0 20px var(--glow-p);
     }
 
-    .code-box.show { display: block; animation: fadeUp 0.4s ease both; }
+    .code-box.show { display: block; animation: fadeIn 0.3s ease both; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to   { opacity: 1; transform: scale(1); }
+    }
 
     .code-label {
       font-size: 0.7rem; color: var(--muted);
-      letter-spacing: 0.1em; text-transform: uppercase;
-      margin-bottom: 0.6rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 0.5rem;
     }
 
     .code-value {
-      font-family: 'Orbitron', monospace;
-      font-size: 1.6rem; font-weight: 700;
-      color: var(--cyan);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem; font-weight: 900;
       letter-spacing: 0.15em;
-      text-shadow: 0 0 20px rgba(34,211,238,0.5);
-    }
-
-    .copy-btn {
-      margin-top: 0.85rem;
-      background: rgba(139,92,246,0.15);
-      border: 1px solid rgba(139,92,246,0.3);
-      border-radius: 8px;
-      color: var(--purple);
-      font-family: 'Syne', sans-serif;
-      font-size: 0.8rem; font-weight: 600;
-      padding: 0.45rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .copy-btn:hover {
-      background: rgba(139,92,246,0.3);
-      box-shadow: 0 0 10px rgba(139,92,246,0.3);
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .code-hint {
@@ -285,20 +311,22 @@
       font-size: 0.72rem; color: var(--muted);
     }
 
-    /* Alert */
+    /* ── Alert ── */
     .alert {
-      margin-top: 1rem;
-      border-radius: 10px;
+      margin-top: 0.75rem;
       padding: 0.75rem 1rem;
+      border-radius: 8px;
       font-size: 0.82rem;
+      text-align: center;
       display: none;
+      animation: fadeIn 0.2s ease;
     }
 
-    .alert.show  { display: block; animation: fadeUp 0.3s ease both; }
+    .alert.show  { display: block; }
     .alert.error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--error); }
     .alert.info  { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.3);  color: var(--success); }
 
-    /* Instructions */
+    /* ── Instructions ── */
     .instructions {
       margin-top: 1.5rem;
       background: rgba(139,92,246,0.05);
@@ -317,18 +345,24 @@
     .instructions ol {
       padding-left: 1.1rem;
       font-size: 0.8rem; color: var(--muted);
-      line-height: 1.7;
+      line-height: 1.8;
     }
 
-    /* Footer */
+    /* ── Footer ── */
     .footer {
-      margin-top: 1.5rem;
       text-align: center;
-      font-size: 0.72rem; color: var(--muted);
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(139,92,246,0.12);
     }
 
-    .footer a { color: var(--purple); text-decoration: none; }
-    .footer a:hover { text-decoration: underline; }
+    .footer p { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    .footer span {
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -337,49 +371,67 @@
 
     <!-- Logo -->
     <div class="logo-wrap">
-      <div class="logo-ring">
-        <div class="logo-core">🌌</div>
+      <div class="logo-orbit">
+        <div class="logo-ring"></div>
+        <div class="logo-core">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
       </div>
-      <div>
+      <div style="text-align:center">
         <div class="logo-title">NEBULA BOT</div>
-        <div class="logo-sub" style="text-align:center">WhatsApp Session Linker</div>
+        <div class="logo-sub">WhatsApp Session Linker</div>
       </div>
     </div>
 
-    <!-- Social links -->
+    <!-- Social Icons -->
     <div class="socials">
-      <a class="social-btn" href="https://youtu.be/gNg2Qw5R-Q4?si=uBxvxRXfEKR0QjQG" target="_blank" title="YouTube">▶</a>
-      <a class="social-btn" href="https://t.me/Neonjce2" target="_blank" title="Telegram">✈</a>
-      <a class="social-btn" href="https://wa.me/237640143760" target="_blank" title="WhatsApp">💬</a>
-      <a class="social-btn" href="https://github.com/JCVERSA" target="_blank" title="GitHub">⌥</a>
+      <a href="https://youtu.be/gNg2Qw5R-Q4?si=uBxvxRXfEKR0QjQG" target="_blank" class="social-btn yt" title="YouTube">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.1 2.7 12 2.7 12 2.7s-4.1 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.1 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5V8.5l8 3.5-8 3.5z"/></svg>
+      </a>
+      <a href="https://t.me/Neonjce2" target="_blank" class="social-btn tg" title="Telegram">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.9 8.2l-2 9.4c-.1.6-.5.8-.9.5l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5.1-4.6c.2-.2 0-.3-.3-.1L6.3 15.5 3.9 14.8c-.5-.2-.5-.5.1-.7l11.5-4.4c.5-.2.9.1.4.5z"/></svg>
+      </a>
+      <a href="https://wa.me/237640143760" target="_blank" class="social-btn wa" title="WhatsApp">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.4.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.1 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.4.2-.6.2-1.2.1-1.3-.1-.1-.3-.2-.6-.3z"/><path d="M12 0C5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6C8 23.4 10 24 12 24c6.6 0 12-5.4 12-12S18.6 0 12 0zm0 22c-1.9 0-3.7-.5-5.3-1.4l-.4-.2-3.6.9.9-3.5-.2-.4C2.5 15.8 2 13.9 2 12 2 6.5 6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>
+      </a>
+      <a href="https://github.com/JCVERSA" target="_blank" class="social-btn gh" title="GitHub">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2 1-.3 2-.4 3-.4s2 .1 3 .4c2.3-1.6 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/></svg>
+      </a>
     </div>
 
     <!-- Input -->
-    <div class="input-wrap">
-      <label>Numéro WhatsApp avec indicatif</label>
-      <input
-        id="phoneInput"
-        type="tel"
-        placeholder="Ex: 237697527033"
-        autocomplete="off"
-      />
-    </div>
+    <label class="field-label">Numéro WhatsApp avec indicatif pays</label>
+    <input
+      class="input"
+      id="phoneInput"
+      type="tel"
+      placeholder="Ex: 237697527033"
+      autocomplete="off"
+    />
 
-    <!-- Button -->
-    <button class="btn" id="pairBtn" onclick="generateCode()">
-      🔑 Générer le Pair Code
+    <!-- Generate Button -->
+    <button class="btn-primary" id="pairBtn" onclick="generateCode()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      GÉNÉRER LE PAIR CODE
     </button>
 
     <!-- Code display -->
     <div class="code-box" id="codeBox">
       <div class="code-label">✅ Ton Pair Code</div>
       <div class="code-value" id="codeValue">----</div>
-      <button class="copy-btn" onclick="copyCode()">📋 Copier le code</button>
       <div class="code-hint">Entre ce code dans WhatsApp → Appareils liés → Lier avec numéro</div>
     </div>
 
     <!-- Alert -->
     <div class="alert" id="alert"></div>
+
+    <!-- Copy button -->
+    <button class="btn-copy" id="copyBtn" onclick="copyCode()" style="display:none">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span id="copyLabel">Copier le code</span>
+    </button>
 
     <!-- Instructions -->
     <div class="instructions">
@@ -390,14 +442,14 @@
         <li>Ouvre WhatsApp → Paramètres → Appareils liés</li>
         <li>Clique "Lier un appareil"</li>
         <li>Choisis "Lier avec un numéro de téléphone"</li>
-        <li>Entre le code affiché ici</li>
+        <li>Entre le code affiché ci-dessus</li>
         <li>Reçois ton Session ID par message WhatsApp ✅</li>
       </ol>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-      © 2025 <a href="https://github.com/JCVERSA">Dark Neon</a> | Nebula Bot
+      <p>© 2025 <span>Nebula Bot</span> — by Dark Neon</p>
     </div>
 
   </div>
@@ -406,8 +458,7 @@
 <script>
   let currentCode = '';
 
-  const phoneInput = document.getElementById('phoneInput');
-  phoneInput.addEventListener('keydown', (e) => {
+  document.getElementById('phoneInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') generateCode();
   });
 
@@ -418,14 +469,12 @@
   }
 
   function hideAlert() {
-    const el = document.getElementById('alert');
-    el.className = 'alert';
+    document.getElementById('alert').className = 'alert';
   }
 
   async function generateCode() {
-    const btn   = document.getElementById('pairBtn');
-    const input = document.getElementById('phoneInput');
-    const number = input.value.replace(/\D/g, '');
+    const btn    = document.getElementById('pairBtn');
+    const number = document.getElementById('phoneInput').value.replace(/\D/g, '');
 
     if (!number || number.length < 7) {
       showAlert('❌ Entre un numéro valide avec indicatif pays.');
@@ -434,8 +483,9 @@
 
     hideAlert();
     document.getElementById('codeBox').className = 'code-box';
+    document.getElementById('copyBtn').style.display = 'none';
     btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div> Génération...';
+    btn.innerHTML = '<div class="spinner"></div> Génération en cours...';
 
     try {
       const res  = await fetch('/code?number=' + encodeURIComponent(number));
@@ -445,24 +495,28 @@
         currentCode = data.code;
         document.getElementById('codeValue').textContent = data.code;
         document.getElementById('codeBox').className = 'code-box show';
-        showAlert('✅ Code généré ! Entre-le dans WhatsApp maintenant. Tu recevras ton Session ID par message.', 'info');
+        document.getElementById('copyBtn').style.display = 'flex';
+        showAlert('✅ Code généré ! Entre-le dans WhatsApp. Tu recevras ton Session ID par message.', 'info');
       } else {
-        showAlert('❌ ' + (data.code || data.error || 'Erreur. Réessaie.'));
+        showAlert('❌ ' + (data.code || data.error || 'Erreur serveur. Réessaie.'));
       }
     } catch (err) {
       showAlert('❌ Erreur réseau. Vérifie ta connexion et réessaie.');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '🔑 Générer le Pair Code';
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        GÉNÉRER LE PAIR CODE`;
     }
   }
 
   function copyCode() {
     if (!currentCode) return;
     navigator.clipboard.writeText(currentCode).then(() => {
-      const btn = document.querySelector('.copy-btn');
-      btn.textContent = '✅ Copié !';
-      setTimeout(() => { btn.textContent = '📋 Copier le code'; }, 2000);
+      document.getElementById('copyLabel').textContent = '✅ Copié !';
+      setTimeout(() => {
+        document.getElementById('copyLabel').textContent = 'Copier le code';
+      }, 2000);
     });
   }
 </script>
