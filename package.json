@@ -1,10 +1,10 @@
 {
   "name": "nebula-bot-pairing",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Nebula Bot — WhatsApp Pairing Server by Dark Neon",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node index.js"
   },
   "engines": {
     "node": ">=18.0.0"

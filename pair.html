@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nebula Bot — Pair Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #04030a;
+      --card:    #110f22;
+      --border:  rgba(139, 92, 246, 0.25);
+      --border-h:rgba(139, 92, 246, 0.7);
+      --purple:  #8b5cf6;
+      --cyan:    #22d3ee;
+      --pink:    #f472b6;
+      --text:    #e2e0f0;
+      --muted:   #6b6a85;
+      --success: #34d399;
+      --error:   #f87171;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Stars */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 8%,  rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 55%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 70%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  80%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 35%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 48% 30%, rgba(139,92,246,0.9) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 78% 55%, rgba(34,211,238,0.8) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 18% 65%, rgba(244,114,182,0.7) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Nebula glow */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 20%, rgba(139,92,246,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 85% 80%, rgba(34,211,238,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(244,114,182,0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      width: 100%; max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      box-shadow:
+        0 0 40px rgba(139,92,246,0.12),
+        0 0 80px rgba(139,92,246,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .logo-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-ring {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 2px solid var(--purple);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      animation: spin 8s linear infinite;
+      box-shadow: 0 0 20px rgba(139,92,246,0.4);
+    }
+
+    .logo-ring::before {
+      content: '';
+      position: absolute; inset: -4px;
+      border-radius: 50%;
+      border: 1px solid rgba(34,211,238,0.3);
+      animation: spin 4s linear infinite reverse;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .logo-core {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,92,246,0.8), rgba(34,211,238,0.4));
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 16px rgba(139,92,246,0.6);
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .logo-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-sub {
+      font-size: 0.8rem; color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* Social buttons */
+    .socials {
+      display: flex; gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .social-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; font-size: 1rem;
+      border: 1px solid var(--border);
+      background: rgba(139,92,246,0.08);
+      transition: all 0.25s;
+    }
+
+    .social-btn:hover {
+      border-color: var(--border-h);
+      background: rgba(139,92,246,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px rgba(139,92,246,0.3);
+    }
+
+    /* Input */
+    .input-wrap {
+      position: relative; margin-bottom: 1rem;
+    }
+
+    .input-wrap label {
+      display: block;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrap input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+    }
+
+    .input-wrap input::placeholder { color: var(--muted); }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      padding: 0.9rem;
+      border: none; border-radius: 12px;
+      background: linear-gradient(135deg, var(--purple), #7c3aed);
+      color: #fff;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 20px rgba(139,92,246,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(139,92,246,0.5);
+    }
+
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Code display */
+    .code-box {
+      margin-top: 1.25rem;
+      background: rgba(139,92,246,0.08);
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 14px;
+      padding: 1.25rem;
+      text-align: center;
+      display: none;
+    }
+
+    .code-box.show { display: block; animation: fadeUp 0.4s ease both; }
+
+    .code-label {
+      font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .code-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-shadow: 0 0 20px rgba(34,211,238,0.5);
+    }
+
+    .copy-btn {
+      margin-top: 0.85rem;
+      background: rgba(139,92,246,0.15);
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 8px;
+      color: var(--purple);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem; font-weight: 600;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(139,92,246,0.3);
+      box-shadow: 0 0 10px rgba(139,92,246,0.3);
+    }
+
+    .code-hint {
+      margin-top: 0.6rem;
+      font-size: 0.72rem; color: var(--muted);
+    }
+
+    /* Alert */
+    .alert {
+      margin-top: 1rem;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      display: none;
+    }
+
+    .alert.show  { display: block; animation: fadeUp 0.3s ease both; }
+    .alert.error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--error); }
+    .alert.info  { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.3);  color: var(--success); }
+
+    /* Instructions */
+    .instructions {
+      margin-top: 1.5rem;
+      background: rgba(139,92,246,0.05);
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+
+    .instructions h4 {
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--purple);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .instructions ol {
+      padding-left: 1.1rem;
+      font-size: 0.8rem; color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.72rem; color: var(--muted);
+    }
+
+    .footer a { color: var(--purple); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-ring">
+        <div class="logo-core">🌌</div>
+      </div>
+      <div>
+        <div class="logo-title">NEBULA BOT</div>
+        <div class="logo-sub" style="text-align:center">WhatsApp Session Linker</div>
+      </div>
+    </div>
+
+    <!-- Social links -->
+    <div class="socials">
+      <a class="social-btn" href="https://youtu.be/gNg2Qw5R-Q4?si=uBxvxRXfEKR0QjQG" target="_blank" title="YouTube">▶</a>
+      <a class="social-btn" href="https://t.me/Neonjce2" target="_blank" title="Telegram">✈</a>
+      <a class="social-btn" href="https://wa.me/237640143760" target="_blank" title="WhatsApp">💬</a>
+      <a class="social-btn" href="https://github.com/JCVERSA" target="_blank" title="GitHub">⌥</a>
+    </div>
+
+    <!-- Input -->
+    <div class="input-wrap">
+      <label>Numéro WhatsApp avec indicatif</label>
+      <input
+        id="phoneInput"
+        type="tel"
+        placeholder="Ex: 237697527033"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Button -->
+    <button class="btn" id="pairBtn" onclick="generateCode()">
+      🔑 Générer le Pair Code
+    </button>
+
+    <!-- Code display -->
+    <div class="code-box" id="codeBox">
+      <div class="code-label">✅ Ton Pair Code</div>
+      <div class="code-value" id="codeValue">----</div>
+      <button class="copy-btn" onclick="copyCode()">📋 Copier le code</button>
+      <div class="code-hint">Entre ce code dans WhatsApp → Appareils liés → Lier avec numéro</div>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert" id="alert"></div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+      <h4>Comment utiliser</h4>
+      <ol>
+        <li>Entre ton numéro avec l'indicatif pays</li>
+        <li>Clique sur "Générer le Pair Code"</li>
+        <li>Ouvre WhatsApp → Paramètres → Appareils liés</li>
+        <li>Clique "Lier un appareil"</li>
+        <li>Choisis "Lier avec un numéro de téléphone"</li>
+        <li>Entre le code affiché ici</li>
+        <li>Reçois ton Session ID par message WhatsApp ✅</li>
+      </ol>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      © 2025 <a href="https://github.com/JCVERSA">Dark Neon</a> | Nebula Bot
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let currentCode = '';
+
+  const phoneInput = document.getElementById('phoneInput');
+  phoneInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') generateCode();
+  });
+
+  function showAlert(msg, type = 'error') {
+    const el = document.getElementById('alert');
+    el.textContent = msg;
+    el.className = 'alert show ' + type;
+  }
+
+  function hideAlert() {
+    const el = document.getElementById('alert');
+    el.className = 'alert';
+  }
+
+  async function generateCode() {
+    const btn   = document.getElementById('pairBtn');
+    const input = document.getElementById('phoneInput');
+    const number = input.value.replace(/\D/g, '');
+
+    if (!number || number.length < 7) {
+      showAlert('❌ Entre un numéro valide avec indicatif pays.');
+      return;
+    }
+
+    hideAlert();
+    document.getElementById('codeBox').className = 'code-box';
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Génération...';
+
+    try {
+      const res  = await fetch('/code?number=' + encodeURIComponent(number));
+      const data = await res.json();
+
+      if (data.code && !data.code.toLowerCase().includes('unavailable')) {
+        currentCode = data.code;
+        document.getElementById('codeValue').textContent = data.code;
+        document.getElementById('codeBox').className = 'code-box show';
+        showAlert('✅ Code généré ! Entre-le dans WhatsApp maintenant. Tu recevras ton Session ID par message.', 'info');
+      } else {
+        showAlert('❌ ' + (data.code || data.error || 'Erreur. Réessaie.'));
+      }
+    } catch (err) {
+      showAlert('❌ Erreur réseau. Vérifie ta connexion et réessaie.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '🔑 Générer le Pair Code';
+    }
+  }
+
+  function copyCode() {
+    if (!currentCode) return;
+    navigator.clipboard.writeText(currentCode).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = '✅ Copié !';
+      setTimeout(() => { btn.textContent = '📋 Copier le code'; }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
