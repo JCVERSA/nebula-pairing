@@ -136,10 +136,43 @@ app.get('/pair', async (req, res) => {
 
       // Écouter la connexion en arrière-plan
       sock.ev.on('creds.update', saveCreds);
-      sock.ev.on('connection.update', async (update) => {
-        const { connection } = update;
+
+      let sessionSent = false;
+      let retries     = 0;
+      const MAX_RETRIES = 5;
+
+      const reconnect = async () => {
+        if (sessionSent || retries >= MAX_RETRIES) return;
+        retries++;
+        console.log('[Pair] Reconnexion tentative', retries, '...');
+        await delay(3000);
+
+        try {
+          const { state: newState, saveCreds: newSave } = await useMultiFileAuthState(dir);
+
+          sock = makeWASocket({
+            auth: {
+              creds: newState.creds,
+              keys:  makeCacheableSignalKeyStore(newState.keys, logger),
+            },
+            printQRInTerminal: false,
+            logger,
+            browser: Browsers.ubuntu('Chrome'),
+          });
+
+          sock.ev.on('creds.update', newSave);
+          sock.ev.on('connection.update', handleUpdate);
+        } catch (e) {
+          console.error('[Pair] Erreur reconnexion:', e.message);
+        }
+      };
+
+      const handleUpdate = async (update) => {
+        const { connection, lastDisconnect } = update;
 
         if (connection === 'open') {
+          if (sessionSent) return;
+          sessionSent = true;
           console.log('[Pair] ✅ WhatsApp connecté !');
           const targetJid = number + '@s.whatsapp.net';
           await sendSession(sock, targetJid, dir);
@@ -149,9 +182,22 @@ app.get('/pair', async (req, res) => {
         }
 
         if (connection === 'close') {
-          cleanupDir(dir);
+          const code = lastDisconnect?.error?.output?.statusCode;
+          console.log('[Pair] Connexion fermée, code:', code);
+
+          // Ne pas reconnecter si déconnexion volontaire ou session déjà envoyée
+          if (sessionSent) return;
+          if (code === DisconnectReason.loggedOut) {
+            cleanupDir(dir);
+            return;
+          }
+
+          // Reconnecter automatiquement
+          await reconnect();
         }
-      });
+      };
+
+      sock.ev.on('connection.update', handleUpdate);
 
       // Répondre immédiatement avec le code
       return res.json({ code: formattedCode });
