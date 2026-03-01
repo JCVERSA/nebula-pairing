@@ -9,162 +9,103 @@ const {
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
-    Browsers,
-    jidNormalizedUser
-} = require("@whiskeysockets/baileys");
+    Browsers
+} = require('@whiskeysockets/baileys');
+
 const { upload } = require('./mega');
+
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
     fs.rmSync(FilePath, { recursive: true, force: true });
 }
+
 router.get('/', async (req, res) => {
     const id = makeid();
- //   let num = req.query.number;
-    async function NEBULA_PAIR_CODE() {
-        const {
-            state,
-            saveCreds
-        } = await useMultiFileAuthState('./temp/' + id);
+
+    async function NEBULA_QR_CODE() {
+        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+
         try {
-var items = ["Safari"];
-function selectRandomItem(array) {
-  var randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
-}
-var randomItem = selectRandomItem(items);
-            
             let sock = makeWASocket({
-                	
-				auth: state,
-				printQRInTerminal: false,
-				logger: pino({
-					level: "silent"
-				}),
-				browser: Browsers.macOS("Desktop"),
-			});
-            
+                auth: state,
+                printQRInTerminal: false,
+                logger: pino({ level: "silent" }),
+                // FIX BUG 1 : Chrome au lieu de macOS Desktop
+                browser: Browsers.ubuntu("Chrome"),
+            });
+
             sock.ev.on('creds.update', saveCreds);
+
             sock.ev.on("connection.update", async (s) => {
-                const {
-                    connection,
-                    lastDisconnect,
-                    qr
-                } = s;
-              if (qr) await res.end(await QRCode.toBuffer(qr));
+                const { connection, lastDisconnect, qr } = s;
+
+                if (qr) await res.end(await QRCode.toBuffer(qr));
+
                 if (connection == "open") {
                     await delay(5000);
-                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
                     let rf = __dirname + `/temp/${id}/creds.json`;
-                    function generateRandomText() {
-                        const prefix = "3EB";
-                        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        let randomText = prefix;
-                        for (let i = prefix.length; i < 22; i++) {
-                            const randomIndex = Math.floor(Math.random() * characters.length);
-                            randomText += characters.charAt(randomIndex);
-                        }
-                        return randomText;
-                    }
-                    const randomText = generateRandomText();
+
                     try {
-                        const { upload } = require('./mega');
                         const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
                         const string_session = mega_url.replace('https://mega.nz/file/', '');
                         let md = "nebula~" + string_session;
+
                         let code = await sock.sendMessage(sock.user.id, { text: md });
-                        let desc = `*Hey there, Nebula Bot User!* 👋🏻
 
-Thanks for using *Nebula Bot* — your session has been successfully created!
+                        let desc = `*Hey there, Nebula Bot User!* 👋🏻\n\nThanks for using *Nebula Bot* — your session has been successfully created!\n\n🔐 *Session ID:* Sent above\n⚠️ *Keep it safe!* Do NOT share this ID with anyone.\n\n——————\n\n*✅ Rejoins notre groupe :*\nhttps://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA\n\n*💬 Telegram :*\nhttps://t.me/Kitagawa_ayanokoji\n\n*📞 Support :*\nhttps://wa.me/237640143760\n\n——————\n\n> *© Powered by Dark Neon — Nebula Bot*`;
 
-🔐 *Session ID:* Sent above  
-⚠️ *Keep it safe!* Do NOT share this ID with anyone.
-
-——————
-
-*✅ Stay Updated:*  
-Join our official WhatsApp Channel:  
-https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA
-
-*💻 Source Code:*  
-Fork & explore the project on GitHub:  
-https://github.com/JCVERSA/Nebula Bot
-
-——————
-
-> *© Powered by Dark Neon*
-Stay cool and hack smart. ✌🏻`;
                         await sock.sendMessage(sock.user.id, {
-text: desc,
-contextInfo: {
-externalAdReply: {
-title: "ᴍᴀʟᴠɪɴ-xᴅ 𝕮𝖔𝖓𝖓𝖊𝖈𝖙𝖊𝖉",
-thumbnailUrl: "https://files.catbox.moe/bqs70b.jpg",
-sourceUrl: "https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA",
-mediaType: 1,
-renderLargerThumbnail: true
-}  
-}
-},
-{quoted:code })
+                            text: desc,
+                            contextInfo: {
+                                externalAdReply: {
+                                    // FIX BUG 3 : title corrigé
+                                    title: "ɴᴇʙᴜʟᴀ ʙᴏᴛ ✅",
+                                    body: "by Dark Neon",
+                                    thumbnailUrl: "https://files.catbox.moe/bqs70b.jpg",
+                                    sourceUrl: "https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA",
+                                    mediaType: 1,
+                                    renderLargerThumbnail: true
+                                }
+                            }
+                        }, { quoted: code });
+
                     } catch (e) {
-                            let ddd = sock.sendMessage(sock.user.id, { text: e });
-                            let desc = `*Hey there, Nebula Bot User!* 👋🏻
-
-Thanks for using *Nebula Bot* — your session has been successfully created!
-
-🔐 *Session ID:* Sent above  
-⚠️ *Keep it safe!* Do NOT share this ID with anyone.
-
-——————
-
-*✅ Stay Updated:*  
-Join our official WhatsApp Channel:  
-https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA
-
-*💻 Source Code:*  
-Fork & explore the project on GitHub:  
-https://github.com/JCVERSA/Nebula Bot
-
-> *© Powered by Dark Neon*
-Stay cool and hack smart. ✌🏻*`;
+                        // Fallback sans Mega
+                        try {
+                            const credsData = fs.readFileSync(rf, 'utf-8');
+                            const base64 = Buffer.from(credsData).toString('base64');
                             await sock.sendMessage(sock.user.id, {
-text: desc,
-contextInfo: {
-externalAdReply: {
-title: "ᴍᴀʟᴠɪɴ-xᴅ 𝕮𝖔𝖓𝖓𝖊𝖈𝖙𝖊𝖉 ✅  ",
-thumbnailUrl: "https://files.catbox.moe/bqs70b.jpg",
-sourceUrl: "https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA",
-mediaType: 2,
-renderLargerThumbnail: true,
-showAdAttribution: true
-}  
-}
-},
-{quoted:ddd })
+                                text: `🌌 *Nebula Bot Session*\n\nnebula~${base64}\n\n⚠️ Ne partage pas ce code.`
+                            });
+                        } catch (e2) {
+                            console.error('Fallback error:', e2.message);
+                        }
                     }
-                    await delay(10);
-                    await sock.ws.close();
-                    await removeFile('./temp/' + id);
-                    console.log(`👤 ${sock.user.id} 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 ✅ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...`);
-                    await delay(10);
-                    process.exit();
-                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
-                    await delay(10);
-                    NEBULA_PAIR_CODE();
+
+                    await delay(2000);
+                    try { sock.ws.close(); } catch (e) {}
+                    removeFile('./temp/' + id);
+                    console.log(`✅ Session QR envoyée à ${sock.user.id}`);
+                    // FIX BUG 2 : process.exit() supprimé
+
+                } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode != 401) {
+                    await delay(1000);
+                    NEBULA_QR_CODE();
                 }
             });
+
         } catch (err) {
-            console.log("service restated");
-            await removeFile('./temp/' + id);
+            console.log("Erreur QR code:", err.message);
+            removeFile('./temp/' + id);
             if (!res.headersSent) {
-                await res.send({ code: "❗ Service Unavailable" });
+                await res.send({ error: "❗ Service Unavailable" });
             }
         }
     }
-    await NEBULA_PAIR_CODE();
+
+    await NEBULA_QR_CODE();
 });
-setInterval(() => {
-    console.log("☘️ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...");
-    process.exit();
-}, 180000); //30min
+
+// FIX BUG 2 : setInterval process.exit() toutes les 3min supprimé
+
 module.exports = router;
