@@ -1,281 +1,178 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nebula Bot — QR Code</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{
-      min-height:100vh;background:#000;font-family:'Rajdhani',sans-serif;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      padding:20px;overflow-x:hidden;
-    }
-    .stars{
-      position:fixed;inset:0;z-index:0;
-      background:radial-gradient(ellipse at 30% 40%,rgba(80,0,120,.12) 0%,transparent 55%),
-                 radial-gradient(ellipse at 70% 70%,rgba(180,0,50,.1) 0%,transparent 55%),#000;
-    }
-    .stars::before{
-      content:'';position:absolute;inset:0;
-      background-image:
-        radial-gradient(1px 1px at 12% 18%,white 0%,transparent 100%),
-        radial-gradient(2px 2px at 52% 8%,white 0%,transparent 100%),
-        radial-gradient(1px 1px at 73% 62%,rgba(255,150,255,.9) 0%,transparent 100%),
-        radial-gradient(2px 2px at 17% 72%,rgba(200,150,255,.9) 0%,transparent 100%),
-        radial-gradient(1px 1px at 37% 87%,white 0%,transparent 100%),
-        radial-gradient(1px 1px at 82% 92%,rgba(255,150,200,.8) 0%,transparent 100%),
-        radial-gradient(2px 2px at 60% 35%,rgba(150,100,255,.9) 0%,transparent 100%),
-        radial-gradient(1px 1px at 6%  47%,white 0%,transparent 100%),
-        radial-gradient(1px 1px at 90% 77%,white 0%,transparent 100%),
-        radial-gradient(1px 1px at 32% 7%,white 0%,transparent 100%),
-        radial-gradient(1px 1px at 77% 47%,rgba(255,200,150,.7) 0%,transparent 100%),
-        radial-gradient(1px 1px at 20% 90%,rgba(255,150,255,.6) 0%,transparent 100%),
-        radial-gradient(1px 1px at 95% 55%,white 0%,transparent 100%);
-      animation:twinkle 5s ease-in-out infinite alternate;
-    }
-    @keyframes twinkle{0%{opacity:.3}100%{opacity:1}}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1737874207490861"
+            crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> QR SCANER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&amp;display=swap" rel="stylesheet">
+    <title>QR</title>
+    <style>
+        .bg {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: 400% 400%;
+            animation: AnimateBG 25s ease infinite;
+        }
 
-    .ring-wrap{
-      position:relative;z-index:1;
-      display:flex;align-items:center;justify-content:center;
-      width:120px;height:120px;margin-bottom:8px;
-    }
-    .ring{position:absolute;border-radius:50%;border:2px solid transparent}
-    .r1{width:110px;height:110px;border-top-color:#ff003c;border-right-color:rgba(255,0,60,.2);animation:spin 3s linear infinite;filter:drop-shadow(0 0 6px #ff003c)}
-    .r2{width:88px;height:88px;border-top-color:#9b00ff;border-left-color:rgba(155,0,255,.3);animation:spin 2s linear infinite reverse;filter:drop-shadow(0 0 6px #9b00ff)}
-    .r3{width:66px;height:66px;border-bottom-color:#ff003c;animation:spin 4s linear infinite;filter:drop-shadow(0 0 4px #ff003c)}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .ring-core-mini{
-      width:40px;height:40px;border-radius:50%;
-      background:radial-gradient(circle,rgba(155,0,255,.4),rgba(255,0,60,.2),transparent);
-      border:1px solid rgba(200,100,255,.3);
-      display:flex;align-items:center;justify-content:center;font-size:16px;
-      box-shadow:0 0 20px rgba(155,0,255,.4);
-    }
+        @keyframes AnimateBG {
+            0% {
+                background-position: 0% 50%
+            }
 
-    .card{
-      position:relative;z-index:1;width:100%;max-width:360px;
-      background:rgba(8,0,15,.85);border:1px solid rgba(155,0,255,.2);
-      border-radius:16px;padding:24px 20px;backdrop-filter:blur(12px);
-      box-shadow:0 0 40px rgba(155,0,255,.08),inset 0 1px 0 rgba(155,0,255,.1);
-    }
-    .card::before{
-      content:'';position:absolute;top:0;left:0;right:0;height:2px;
-      border-radius:16px 16px 0 0;
-      background:linear-gradient(90deg,transparent,#9b00ff,#ff003c,transparent);
-    }
-    .card-title{
-      font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;
-      letter-spacing:3px;text-align:center;margin-bottom:4px;
-      background:linear-gradient(135deg,#ff003c,#cc00ff);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-    }
-    .card-sub{
-      text-align:center;font-size:.75rem;letter-spacing:2px;
-      color:rgba(200,150,255,.5);text-transform:uppercase;margin-bottom:20px;
-    }
+            50% {
+                background-position: 100% 50%
+            }
 
-    /* QR Box */
-    .qr-container{
-      display:flex;flex-direction:column;align-items:center;gap:14px;
-    }
-    .qr-frame{
-      width:220px;height:220px;border-radius:12px;
-      background:rgba(20,0,35,.8);
-      border:1px solid rgba(155,0,255,.25);
-      display:flex;align-items:center;justify-content:center;
-      position:relative;overflow:hidden;
-    }
-    .qr-frame::before{
-      content:'';position:absolute;inset:0;
-      background:linear-gradient(135deg,rgba(155,0,255,.05),rgba(255,0,60,.05));
-    }
-    .qr-frame img{width:200px;height:200px;border-radius:8px;display:block}
-    .qr-placeholder{
-      font-size:60px;opacity:.2;
-      animation:pulse-ph 2s ease-in-out infinite;
-    }
-    @keyframes pulse-ph{0%,100%{opacity:.15}50%{opacity:.3}}
+            100% {
+                background-position: 0% 50%
+            }
+        }
 
-    /* Countdown */
-    .countdown-bar{
-      width:100%;height:4px;background:rgba(155,0,255,.15);border-radius:2px;overflow:hidden;
-    }
-    .countdown-fill{
-      height:100%;border-radius:2px;
-      background:linear-gradient(90deg,#9b00ff,#ff003c);
-      transition:width 1s linear;
-      box-shadow:0 0 8px rgba(155,0,255,.5);
-    }
-    .countdown-txt{
-      font-family:'Share Tech Mono',monospace;font-size:.75rem;
-      color:rgba(200,150,255,.6);text-align:center;letter-spacing:2px;
-    }
-    .countdown-txt span{color:#9b00ff;font-weight:bold;}
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Outfit";
+            background: linear-gradient(-45deg, #4a90e2, #3ac569, #9b59b6, #e74c3c);
+            background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    /* Status */
-    .status-msg{
-      font-family:'Share Tech Mono',monospace;font-size:.72rem;
-      letter-spacing:2px;color:rgba(200,150,255,.5);text-align:center;
-    }
-    .status-ok{color:#00ff88}
-    .status-err{color:#ff003c}
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
 
-    .gen-btn{
-      width:100%;padding:14px;border:none;border-radius:8px;cursor:pointer;
-      font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;
-      letter-spacing:3px;text-transform:uppercase;
-      background:linear-gradient(135deg,#7700cc,#ff003c);color:#fff;
-      transition:all .25s;box-shadow:0 0 20px rgba(155,0,255,.25);
-    }
-    .gen-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 35px rgba(255,0,60,.4)}
-    .gen-btn:disabled{opacity:.4;cursor:not-allowed}
+            50% {
+                background-position: 100% 50%;
+            }
 
-    .steps{
-      margin-top:16px;background:rgba(10,0,18,.7);
-      border:1px solid rgba(155,0,255,.15);border-radius:10px;
-      padding:12px 14px;list-style:none;counter-reset:s;
-    }
-    .steps li{
-      counter-increment:s;padding:5px 0 5px 24px;position:relative;
-      font-size:.76rem;color:rgba(200,150,255,.55);
-      border-bottom:1px solid rgba(255,255,255,.03);line-height:1.5;
-    }
-    .steps li:last-child{border-bottom:none}
-    .steps li::before{
-      content:counter(s);position:absolute;left:0;top:6px;
-      width:15px;height:15px;border-radius:4px;
-      background:rgba(155,0,255,.15);border:1px solid rgba(155,0,255,.3);
-      font-family:'Share Tech Mono',monospace;font-size:.6rem;
-      color:#9b00ff;display:flex;align-items:center;justify-content:center;
-    }
-    .steps li strong{color:rgba(255,200,255,.75)}
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
-    .back-link{
-      position:relative;z-index:1;margin-top:14px;
-      font-size:.7rem;letter-spacing:2px;text-decoration:none;
-      color:rgba(155,0,255,.5);text-transform:uppercase;transition:color .2s;
-    }
-    .back-link:hover{color:#ff003c}
+        jsl.code {
+            overflow: hidden;
+            background: linear-gradient(-45deg, #f1c40f, #3498db, #2ecc71, #e74c3c);
+            background-size: 400% 400%;
+            animation: gradient 8s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: 'Montserrat', sans-serif;
+            height: 110vh;
+            margin: 0px;
 
-    footer{
-      position:relative;z-index:1;margin-top:14px;
-      font-size:.65rem;letter-spacing:3px;
-      color:rgba(150,80,200,.4);text-transform:uppercase;text-align:center;
-    }
-    footer .hl{color:rgba(255,0,60,.5)}
-  </style>
+        }
+
+        p.legend {
+            color: #fff;
+            font-size: 1em;
+            font-weight: 400;
+            padding: 0em 1.1em;
+            margin-top: 0.1em;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        :root {
+            --main-color: hsl(212, 45%, 89%);
+            --principalText-color: hsl(218, 44%, 22%);
+            --secondText-color: hsl(220, 15%, 55%);
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            width: 22rem;
+            text-align: center;
+            background-color: #000000;
+            padding: 1rem;
+            border-radius: 14px;
+        }
+
+        #QR-content img {
+            border-radius: 10px;
+            width: 20rem;
+        }
+
+        #title-container {
+            padding: 1rem 1rem 0 1rem;
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        #description-container {
+            padding: 0 2.5rem 0 2.5rem;
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+
+        #p-legend {
+            font-size: 1em;
+            font-weight: 400;
+            padding: 0em 1.1em;
+            margin-top: 0.1em;
+        }
+
+        .reload-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db; /* Blue color */
+            color: #fff; /* White text color */
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .reload-button:hover {
+            background-color: #2980b9; /* Darker blue color on hover */
+        }
+    </style>
+    <script>
+        var timeleft = 30;
+        var downloadTimer = setInterval(function () {
+            if (timeleft <= 0) {
+                clearInterval(downloadTimer);
+                document.getElementById("progressBar").remove();
+                document.getElementById("main").innerHTML = "QR Expired! Please reload";
+                document.getElementById("legend").innerHTML = ""
+            }
+            document.getElementById("progressBar").value = 30 - timeleft;
+            timeleft -= 1;
+        }, 1000);
+    </script>
 </head>
 <body>
-  <div class="stars"></div>
-
-  <div class="ring-wrap">
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="ring r3"></div>
-    <div class="ring-core-mini">⬛</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">QR Code</div>
-    <div class="card-sub">Scanner avec WhatsApp</div>
-
-    <div class="qr-container">
-      <div class="qr-frame" id="qrFrame">
-        <div class="qr-placeholder" id="placeholder">🌌</div>
-        <img id="qrImg" src="" alt="QR" style="display:none"/>
-      </div>
-
-      <div class="countdown-bar" id="barWrap" style="display:none">
-        <div class="countdown-fill" id="bar" style="width:100%"></div>
-      </div>
-      <div class="countdown-txt" id="countTxt" style="display:none">
-        QR expire dans <span id="countNum">30</span>s
-      </div>
-
-      <div class="status-msg" id="statusMsg">Clique pour générer le QR Code</div>
-
-      <button class="gen-btn" id="genBtn" onclick="generateQR()">Générer QR Code</button>
+<div class="bg">
+    <div id="content">
+        <div id="QR-content">
+            <img id="qr-image" src="/server" alt="QR CODE">
+        </div>
+        <div id="title-container">
+            <h2 id="main">NEBULA QR PAIR</h2>
+            <p class="legend" id="legend">Scan The QR Code</p>
+        </div>
+        <div id="description-container">
+            <p id="semi" class="legend"></p>
+            <progress value="0" max="30" id="progressBar"></progress>
+        </div>
+        <a href="javascript:history.go(0)" class="reload-button">Reload Page</a>
     </div>
-
-    <ul class="steps">
-      <li>Clique <strong>Générer QR Code</strong></li>
-      <li>Ouvre <strong>WhatsApp → Paramètres → Appareils liés</strong></li>
-      <li>Appuie sur <strong>Lier un appareil</strong></li>
-      <li>Scanne le QR Code avec ta caméra</li>
-      <li>Reçois le <strong>SESSION_ID</strong> en message WhatsApp 🎉</li>
-    </ul>
-  </div>
-
-  <a href="/" class="back-link">← Retour</a>
-
-  <footer>
-    Nebula Bot &copy; <span id="yr" class="hl"></span> — by <span class="hl">Dark Neon</span>
-  </footer>
-
-  <script>
-    document.getElementById('yr').textContent = new Date().getFullYear();
-    let timer = null;
-    let timeLeft = 30;
-
-    function setStatus(msg, cls='') {
-      const el = document.getElementById('statusMsg');
-      el.textContent = msg;
-      el.className = 'status-msg ' + cls;
-    }
-
-    async function generateQR() {
-      if (timer) clearInterval(timer);
-      const btn = document.getElementById('genBtn');
-      btn.disabled = true; btn.textContent = 'Chargement...';
-      setStatus('Génération du QR Code...');
-
-      document.getElementById('qrImg').style.display = 'none';
-      document.getElementById('placeholder').style.display = 'flex';
-      document.getElementById('barWrap').style.display = 'none';
-      document.getElementById('countTxt').style.display = 'none';
-
-      try {
-        const res = await fetch('/server');
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-
-        const img = document.getElementById('qrImg');
-        img.src = url;
-        img.style.display = 'block';
-        document.getElementById('placeholder').style.display = 'none';
-        document.getElementById('barWrap').style.display = 'block';
-        document.getElementById('countTxt').style.display = 'block';
-
-        setStatus('Scanne ce QR Code avec WhatsApp !');
-        btn.disabled = false; btn.textContent = 'Générer QR Code';
-
-        timeLeft = 30;
-        document.getElementById('countNum').textContent = 30;
-        document.getElementById('bar').style.width = '100%';
-
-        timer = setInterval(() => {
-          timeLeft--;
-          document.getElementById('countNum').textContent = timeLeft;
-          document.getElementById('bar').style.width = (timeLeft / 30 * 100) + '%';
-          if (timeLeft <= 0) {
-            clearInterval(timer);
-            setStatus('QR expiré — clique pour générer à nouveau', 'status-err');
-            document.getElementById('placeholder').style.display = 'flex';
-            document.getElementById('placeholder').textContent = '⏱';
-            img.style.display = 'none';
-            document.getElementById('barWrap').style.display = 'none';
-            document.getElementById('countTxt').style.display = 'none';
-          }
-        }, 1000);
-
-      } catch (e) {
-        setStatus('Erreur — réessaie dans quelques secondes', 'status-err');
-        btn.disabled = false; btn.textContent = 'Générer QR Code';
-      }
-    }
-  </script>
+</div>
 </body>
 </html>
