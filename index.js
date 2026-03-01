@@ -1,25 +1,31 @@
 const express = require('express');
-const path    = require('path');
-const app     = express();
+const app = express();
+__path = process.cwd();
+const bodyParser = require("body-parser");
+const PORT = parseInt(process.env.PORT) || 8000;
 
-const pairCode = require('./pair');
-
-const PORT = process.env.PORT || 8001;
-global.__path = process.cwd();
+let server = require('./qr'),
+    code   = require('./pair');
 
 require('events').EventEmitter.defaultMaxListeners = 500;
 
-// Routes
-app.use('/code', pairCode);
-app.use('/', (req, res) => res.sendFile(path.join(__path, 'pair.html')));
+app.use('/server', server);
+app.use('/code',   code);
 
-app.listen(PORT, () => {
-  console.log('\n🌌 ================================');
-  console.log('   Nebula Bot — Pairing Server');
-  console.log('   by Dark Neon');
-  console.log('================================');
-  console.log('🚀 Port : ' + PORT);
-  console.log('================================\n');
+app.use('/pair', async (req, res) => res.sendFile(__path + '/pair.html'));
+app.use('/qr',   async (req, res) => res.sendFile(__path + '/qr.html'));
+app.use('/',     async (req, res) => res.sendFile(__path + '/main.html'));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`
+🌌 Nebula Bot — Session Generator
+🚀 Serveur démarré sur le port ${PORT}
+📡 http://localhost:${PORT}
+💬 by Dark Neon
+  `);
 });
 
 module.exports = app;

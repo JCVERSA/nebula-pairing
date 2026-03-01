@@ -1,127 +1,145 @@
 const { makeid } = require('./gen-id');
-const express    = require('express');
-const fs         = require('fs');
-const path       = require('path');
-const pino       = require('pino');
+const express = require('express');
+const fs = require('fs');
+let router = express.Router();
+const pino = require("pino");
 const {
   default: makeWASocket,
   useMultiFileAuthState,
   delay,
   Browsers,
-  makeCacheableSignalKeyStore
+  makeCacheableSignalKeyStore,
+  DisconnectReason
 } = require('@whiskeysockets/baileys');
 
-const router = express.Router();
+const { upload } = require('./mega');
 
-function removeFolder(folderPath) {
-  if (fs.existsSync(folderPath)) {
-    fs.rmSync(folderPath, { recursive: true, force: true });
-  }
+function removeFile(FilePath) {
+  if (!fs.existsSync(FilePath)) return false;
+  fs.rmSync(FilePath, { recursive: true, force: true });
 }
 
 router.get('/', async (req, res) => {
-  const id          = makeid();
-  const tempDir     = path.join(__dirname, 'temp', id);
-  const phoneNumber = (req.query.number || '').replace(/\D/g, '');
+  const id = makeid();
+  let num = req.query.number;
 
-  if (!phoneNumber) {
-    return res.status(400).send({ error: 'Please provide a valid phone number' });
-  }
+  async function NEBULA_PAIR_CODE() {
+    const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
 
-  async function createSocketSession() {
-    const { state, saveCreds } = await useMultiFileAuthState(tempDir);
-    const logger = pino({ level: 'fatal' }).child({ level: 'fatal' });
+    try {
+      let sock = makeWASocket({
+        auth: {
+          creds: state.creds,
+          keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
+        },
+        printQRInTerminal: false,
+        generateHighQualityLinkPreview: true,
+        logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+        syncFullHistory: false,
+        browser: Browsers.macOS("Safari")
+      });
 
-    const sock = makeWASocket({
-      auth: {
-        creds: state.creds,
-        keys:  makeCacheableSignalKeyStore(state.keys, logger),
-      },
-      printQRInTerminal:          false,
-      generateHighQualityLinkPreview: true,
-      logger,
-      syncFullHistory:            false,
-      browser:                    Browsers.macOS('Safari'),
-    });
-
-    sock.ev.on('creds.update', saveCreds);
-
-    sock.ev.on('connection.update', async (update) => {
-      const { connection, lastDisconnect } = update;
-
-      if (connection === 'open') {
-        await delay(5000);
-
-        try {
-          const credsPath   = path.join(tempDir, 'creds.json');
-          const sessionData = fs.readFileSync(credsPath, 'utf8');
-          const base64      = Buffer.from(sessionData).toString('base64');
-          const sessionId   = 'NEBULA-MD~' + base64;
-
-          // Message 1 : SESSION ID brut
-          await sock.sendMessage(sock.user.id, { text: sessionId });
-
-          // Message 2 : message de succès avec infos
-          await sock.sendMessage(sock.user.id, {
-            text:
-              '🌌 *Nebula Bot — Session créée !*\n\n' +
-              '▸ *Ne partage jamais* ton Session ID\n' +
-              '▸ Rejoins notre canal WhatsApp\n' +
-              '▸ Signale les bugs sur GitHub\n\n' +
-              '_Powered by Nebula Bot by Dark Neon_\n\n' +
-              '🔗 *Liens utiles :*\n' +
-              '▸ GitHub: https://github.com/JCVERSA\n' +
-              '▸ Telegram: https://t.me/Neonjce2\n' +
-              '▸ WhatsApp: https://wa.me/237640143760\n' +
-              '▸ YouTube: https://youtu.be/gNg2Qw5R-Q4',
-            contextInfo: {
-              mentionedJid: [sock.user.id],
-              forwardingScore: 1000,
-              isForwarded: true,
-            },
-          });
-
-        } catch (err) {
-          console.error('❌ Session Error:', err.message);
-          await sock.sendMessage(sock.user.id, {
-            text: '⚠️ Erreur: ' + (err.message.includes('rate limit')
-              ? 'Serveur occupé. Réessaie plus tard.'
-              : err.message),
-          });
-        } finally {
-          await delay(1000);
-          await sock.ws.close();
-          removeFolder(tempDir);
-          console.log('✅ Session complétée pour', sock.user.id);
-          process.exit();
+      if (!sock.authState.creds.registered) {
+        await delay(1500);
+        num = num.replace(/[^0-9]/g, '');
+        const code = await sock.requestPairingCode(num);
+        if (!res.headersSent) {
+          await res.send({ code });
         }
-
-      } else if (connection === 'close' &&
-                 lastDisconnect?.error?.output?.statusCode !== 401) {
-        console.log('🔁 Reconnexion...');
-        await delay(10);
-        createSocketSession();
       }
-    });
 
-    if (!sock.authState.creds.registered) {
-      await delay(1500);
-      const pairingCode = await sock.requestPairingCode(phoneNumber);
+      sock.ev.on('creds.update', saveCreds);
+
+      sock.ev.on("connection.update", async (s) => {
+        const { connection, lastDisconnect } = s;
+
+        if (connection == "open") {
+          await delay(5000);
+
+          let rf = __dirname + `/temp/${id}/creds.json`;
+
+          try {
+            // ── Envoi via Mega.nz ──
+            const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
+            const string_session = mega_url.replace('https://mega.nz/file/', '');
+            let sessionId = "nebula~" + string_session;
+
+            // ── Message SESSION_ID ──
+            let code = await sock.sendMessage(sock.user.id, { text: sessionId });
+
+            // ── Message de bienvenue ──
+            let desc = `🌌 *Nebula Bot — Session créée !* 🌌
+
+✅ Ton session a été générée avec succès !
+
+🔐 *SESSION ID :* Envoyé ci-dessus
+⚠️ *Ne le partage JAMAIS avec personne.*
+
+──────────────────
+
+📲 *Rejoins notre groupe :*
+https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA
+
+💬 *Telegram :*
+https://t.me/Kitagawa_ayanokoji
+
+📞 *Support :*
+https://wa.me/237640143760
+
+──────────────────
+
+> *© Powered by Dark Neon — Nebula Bot*`;
+
+            await sock.sendMessage(sock.user.id, {
+              text: desc,
+              contextInfo: {
+                externalAdReply: {
+                  title: "ɴᴇʙᴜʟᴀ ʙᴏᴛ",
+                  body: "by Dark Neon",
+                  thumbnailUrl: "https://files.catbox.moe/bqs70b.jpg",
+                  sourceUrl: "https://chat.whatsapp.com/EqrRF0FvlTWLcgJR91RfCA",
+                  mediaType: 1,
+                  renderLargerThumbnail: true
+                }
+              }
+            }, { quoted: code });
+
+          } catch (e) {
+            // Fallback : envoi base64 direct si Mega échoue
+            try {
+              const credsData = fs.readFileSync(rf, 'utf-8');
+              const base64Creds = Buffer.from(credsData).toString('base64');
+              await sock.sendMessage(sock.user.id, {
+                text: `🌌 *Nebula Bot — Session ID (backup)*\n\nnebula~${base64Creds}\n\n⚠️ Ne partage pas ce code.`
+              });
+            } catch (e2) {
+              console.error('Backup send failed:', e2.message);
+            }
+          }
+
+          await delay(2000);
+          await sock.ws.close();
+          await removeFile('./temp/' + id);
+          console.log(`✅ Session générée pour ${sock.user.id}`);
+          await delay(10);
+          process.exit();
+
+        } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode != 401) {
+          await delay(10);
+          NEBULA_PAIR_CODE();
+        }
+      });
+
+    } catch (err) {
+      console.log("Erreur — redémarrage:", err.message);
+      await removeFile('./temp/' + id);
       if (!res.headersSent) {
-        return res.send({ code: pairingCode });
+        await res.send({ code: "❗ Service Unavailable" });
       }
     }
   }
 
-  try {
-    await createSocketSession();
-  } catch (err) {
-    console.error('🚨 Fatal Error:', err.message);
-    removeFolder(tempDir);
-    if (!res.headersSent) {
-      res.status(500).send({ code: 'Service Unavailable. Try again later.' });
-    }
-  }
+  return await NEBULA_PAIR_CODE();
 });
 
 module.exports = router;
