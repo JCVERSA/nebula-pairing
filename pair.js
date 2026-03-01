@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
         generateHighQualityLinkPreview: true,
         logger: pino({ level: "fatal" }).child({ level: "fatal" }),
         syncFullHistory: false,
-        browser: Browsers.macOS("Safari")
+        browser: Browsers.ubuntu("Chrome")
       });
 
       if (!sock.authState.creds.registered) {
